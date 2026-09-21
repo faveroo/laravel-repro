@@ -1,0 +1,44 @@
+{
+    "name": "faveroo/laravel-repro",
+    "description": "Turn real Laravel failures into reproducible regression tests.",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Faveroo\\LaravelRepro\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Faveroo\\LaravelRepro\\Tests\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "faveroo",
+            "email": "gabriel290974@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": "^8.2",
+        "illuminate/support": "^13.32",
+        "illuminate/http": "*"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Faveroo\\LaravelRepro\\LaravelReproServiceProvider"
+            ]
+        }
+    },
+    "require-dev": {
+        "pestphp/pest": "^5.2",
+        "orchestra/testbench": "^11.2"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    }
+}
