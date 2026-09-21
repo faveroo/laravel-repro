@@ -30,11 +30,11 @@ final readonly class RequestRecorder
     ): ReproductionCase {
         return new ReproductionCase(
             id: bin2hex(random_bytes(8)),
-            capturedAt: new DateTimeImmutable('now', new DateTimeZone('UTC-3')),
+            capturedAt: new DateTimeImmutable('now', new DateTimeZone('UTC')),
             method: strtoupper($request->getMethod()),
             uri: $request->getPathInfo(),
             routeName: $this->routeName($request),
-            header: $this->redactor->redact(
+            headers: $this->redactor->redact(
                 $this->captureHeaders($request)
             ),
             query: $this->redactor->redact(

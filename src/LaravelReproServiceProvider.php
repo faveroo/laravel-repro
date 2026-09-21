@@ -27,6 +27,21 @@ final class LaravelReproServiceProvider extends ServiceProvider
                 );
             },
         );
+
+        $this->app->singleton(
+            RequestRecorder::class,
+            function ($app): RequestRecorder {
+                return new RequestRecorder(
+                    redactor: $app->make(Redactor::class),
+                    basePath: $app->basePath(),
+                    capturedHeaders: $app['config']->get('repro.headers', []),
+                    captureExceptionMessage: (bool) $app['config']->get(
+                        'repro.capture_exception_message',
+                        false,
+                    ),
+                );
+            },
+        );
     }
 
     public function boot(): void
