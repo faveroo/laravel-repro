@@ -2,11 +2,14 @@
 
 namespace Faveroo\LaravelRepro;
 
+use Faveroo\LaravelRepro\Commands\ListReproductionCommand;
 use Faveroo\LaravelRepro\Contracts\Redactor;
 use Faveroo\LaravelRepro\Contracts\ReproductionStore;
+use Faveroo\LaravelRepro\Contracts\TestGenerator;
 use Faveroo\LaravelRepro\Recording\RequestRecorder;
 use Faveroo\LaravelRepro\Redaction\RecursiveRedactor;
 use Faveroo\LaravelRepro\Storage\FileReproductionStore;
+use Faveroo\LaravelRepro\Testing\PestTestGenerator;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Contracts\Filesystem\Factory as FilesystemFactory;
 
@@ -63,6 +66,11 @@ final class LaravelReproServiceProvider extends ServiceProvider
                 );
             },
         );
+
+        $this->app->singleton(
+            TestGenerator::class,
+            PestTestGenerator::class,
+        );
     }
 
     public function boot(): void
@@ -70,5 +78,11 @@ final class LaravelReproServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/../config/repro.php' => $this->app->configPath('repro.php'),
         ], 'repro-config');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                ListReproductionCommand::class
+            ]);
+        }
     }
 }
