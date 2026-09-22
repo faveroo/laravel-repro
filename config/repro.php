@@ -31,4 +31,6 @@ return [
         'user-agent',
         'x-requested-with',
     ],
+
+    'ignore_exceptions' => [],
 ];

@@ -23,7 +23,8 @@
     "require": {
         "php": "^8.2",
         "illuminate/support": "^13.32",
-        "illuminate/http": "*"
+        "illuminate/http": "*",
+        "illuminate/filesystem": "*"
     },
     "extra": {
         "laravel": {

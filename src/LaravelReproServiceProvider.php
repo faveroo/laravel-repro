@@ -3,8 +3,12 @@
 namespace Faveroo\LaravelRepro;
 
 use Faveroo\LaravelRepro\Contracts\Redactor;
+use Faveroo\LaravelRepro\Contracts\ReproductionStore;
+use Faveroo\LaravelRepro\Recording\RequestRecorder;
 use Faveroo\LaravelRepro\Redaction\RecursiveRedactor;
+use Faveroo\LaravelRepro\Storage\FileReproductionStore;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Contracts\Filesystem\Factory as FilesystemFactory;
 
 final class LaravelReproServiceProvider extends ServiceProvider
 {
@@ -34,10 +38,27 @@ final class LaravelReproServiceProvider extends ServiceProvider
                 return new RequestRecorder(
                     redactor: $app->make(Redactor::class),
                     basePath: $app->basePath(),
-                    capturedHeaders: $app['config']->get('repro.headers', []),
+                    capturedHeaders: (array) $app['config']->get('repro.headers', []),
                     captureExceptionMessage: (bool) $app['config']->get(
                         'repro.capture_exception_message',
                         false,
+                    ),
+                );
+            },
+        );
+
+        $this->app->singleton(
+            ReproductionStore::class,
+            function ($app): FileReproductionStore {
+                return new FileReproductionStore (
+                    filesystem: $app->make(FilesystemFactory::class),
+                    disk: (string) $app['config']->get(
+                        'repro.disk',
+                        'local'
+                    ),
+                    path: (string) $app['config']->get(
+                        'repro.path',
+                        'laravel-repro'
                     ),
                 );
             },
