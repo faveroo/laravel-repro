@@ -9,6 +9,7 @@ use Faveroo\LaravelRepro\Redaction\RecursiveRedactor;
 use Faveroo\LaravelRepro\Reproduction\ReproductionCase;
 use Illuminate\Config\Repository as ConfigRepository;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 final class CaptureFailuresInMemoryStore implements ReproductionStore
 {
@@ -181,4 +182,42 @@ it('preserves the original exception when storage fails', function () use ($make
     expect($caught)
         ->toBe($original)
         ->and($store->all())->toBe([]);
+});
+
+
+it('captures an exception attached to a rendered response', function () use ($makeMiddleware) {
+    $store = new CaptureFailuresInMemoryStore();
+
+    $middleware = $makeMiddleware([
+        'enabled' => true,
+        'ignore_exceptions' => [],
+    ], $store);
+
+    $request = Request::create('/failure');
+
+    $exception = new RuntimeException(
+        'Rendered application failure',
+    );
+
+    $response = new Response(
+        content: 'Internal Server Error',
+        status: 500,
+    );
+
+    $response->withException($exception);
+
+    $returnedResponse = $middleware->handle(
+        $request,
+        static fn (): Response => $response,
+    );
+
+    $cases = $store->all();
+
+    expect($returnedResponse)
+        ->toBe($response)
+        ->and($cases)->toHaveCount(1)
+        ->and($cases[0]->exception->class)
+        ->toBe(RuntimeException::class)
+        ->and($cases[0]->exception->message)
+        ->toBe('[OMITTED]');
 });

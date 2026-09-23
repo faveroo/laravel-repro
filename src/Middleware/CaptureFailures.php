@@ -22,12 +22,22 @@ final readonly class CaptureFailures
     public function handle(Request $request, Closure $next): mixed
     {
         try {
-            return $next($request);
+            $response = $next($request);
         } catch (Throwable $throwable) {
             $this->capture($request, $throwable);
 
             throw $throwable;
         }
+
+        $exception = is_object($response)
+            ? ($response->exception ?? null)
+            : null;
+
+        if ($exception instanceof Throwable) {
+            $this->capture($request, $exception);
+        }
+
+        return $response;
     }
 
     private function capture(

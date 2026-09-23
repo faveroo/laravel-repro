@@ -52,7 +52,7 @@ final class ListReproductionCommand extends Command
                 'No reproduction cases were found.',
             );
 
-            self::SUCCESS;
+            return self::SUCCESS;
         }
 
         $this->table(
