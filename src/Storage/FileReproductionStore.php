@@ -89,7 +89,7 @@ final readonly class FileReproductionStore implements ReproductionStore
         return $this->path.'/'.$filename;
     }
 
-    private function read(string $filename): ?ReproductionCase
+    private function read(string $filename): ReproductionCase
     {
         $contents = $this->filesystem
             ->disk($this->disk)
@@ -117,6 +117,5 @@ final readonly class FileReproductionStore implements ReproductionStore
                 previous: $exception
             );
         }
-
     }
 }

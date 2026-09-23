@@ -45,6 +45,10 @@ jobs:
       - name: Check code style
         if: matrix.php == '8.5'
         run: composer lint
+      
+      - name: Run static analysis
+        if: matrix.php == '8.5'
+        run: composer analyse
 
       - name: Audit dependencies
         run: composer audit --locked

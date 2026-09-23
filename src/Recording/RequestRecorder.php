@@ -85,7 +85,7 @@ final readonly class RequestRecorder
     {
         $route = $request->route();
 
-        if (! is_object($route) || ! method_exists($route, 'getName')) {
+        if ($route === null) {
             return null;
         }
 
