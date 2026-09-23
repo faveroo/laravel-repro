@@ -1,5 +1,6 @@
 <?php
 
+use Faveroo\LaravelRepro\Exceptions\CorruptedReproductionCase;
 use Faveroo\LaravelRepro\Reproduction\ReproductionCase;
 use Faveroo\LaravelRepro\Reproduction\ThrowableSnapshot;
 use Faveroo\LaravelRepro\Storage\FileReproductionStore;
@@ -71,4 +72,27 @@ it('File Reproduction Test', function() {
     expect($store->find('aaaaaaaaaaaaaaaa'))->toBeNull();
 
     expect($store->find('../../secret'))->toBeNull();
+});
+
+
+it('throws a specific exception for corrupted JSON', function () {
+    Storage::fake('local');
+
+    Storage::disk('local')->put(
+        'laravel-repro/aaaaaaaaaaaaaaaa.json',
+        '{"invalid":',
+    );
+
+    $store = new FileReproductionStore(
+        filesystem: $this->app->make(FilesystemFactory::class),
+        disk: 'local',
+        path: 'laravel-repro',
+    );
+
+    expect(
+        fn () => $store->find('aaaaaaaaaaaaaaaa'),
+    )->toThrow(
+        CorruptedReproductionCase::class,
+        'Reproduction case [laravel-repro/aaaaaaaaaaaaaaaa.json] contains invalid data.',
+    );
 });

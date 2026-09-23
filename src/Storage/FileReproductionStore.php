@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace Faveroo\LaravelRepro\Storage;
 
 use Faveroo\LaravelRepro\Contracts\ReproductionStore;
+use Faveroo\LaravelRepro\Exceptions\CorruptedReproductionCase;
+use Faveroo\LaravelRepro\Exceptions\UnsupportedSchemaVersion;
 use Faveroo\LaravelRepro\Reproduction\ReproductionCase;
 use Illuminate\Contracts\Filesystem\Factory as FilesystemFactory;
+use Throwable;
+use UnexpectedValueException;
 
 final readonly class FileReproductionStore implements ReproductionStore
 {
@@ -60,11 +64,7 @@ final readonly class FileReproductionStore implements ReproductionStore
                 continue;
             }
 
-            $case = $this->read($file);
-
-            if ($case !== null) {
-                $cases[] = $case; 
-            }
+            $cases[] = $this->read($file);
         }
 
         usort(
@@ -95,16 +95,29 @@ final readonly class FileReproductionStore implements ReproductionStore
             ->disk($this->disk)
             ->get($filename);
 
-        $data = json_decode(
-            $contents,
-            true,
-            flags: JSON_THROW_ON_ERROR,
-        );
+        try { 
+            $data = json_decode(
+                $contents,
+                true,
+                flags: JSON_THROW_ON_ERROR,
+            );
 
-        if (! is_array($data)) {
-            return null;
+            if (! is_array($data)) {
+                throw new UnexpectedValueException(
+                    'The decoded snapshot must be an array.',
+                );
+            }
+            
+            return ReproductionCase::fromArray($data);
+        } catch (UnsupportedSchemaVersion $exception) {
+            throw $exception;
+        } catch (Throwable $exception) {
+            throw CorruptedReproductionCase::at(
+                filename: $filename,
+                previous: $exception
+            );
         }
 
-        return ReproductionCase::fromArray($data);
+
     }
 }
