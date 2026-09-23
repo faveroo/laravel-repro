@@ -7,10 +7,37 @@ use Faveroo\LaravelRepro\Middleware\CaptureFailures;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
+it('does not capture Laravel route failures by default during tests', function () {
+    Storage::fake('local');
+
+    config()->set('repro.enabled', true);
+    config()->set('repro.disk', 'local');
+    config()->set('repro.path', 'laravel-repro');
+
+    Route::middleware(CaptureFailures::class)
+        ->get('/repro-test-disabled', static function (): never {
+            throw new RuntimeException('Test failure');
+        });
+
+    $this->withoutExceptionHandling();
+
+    expect(
+        fn () => $this->getJson('/repro-test-disabled'),
+    )->toThrow(
+        RuntimeException::class,
+        'Test failure',
+    );
+
+    $store = $this->app->make(ReproductionStore::class);
+
+    expect($store->all())->toBe([]);
+});
+
 it('captures a Laravel route failure', function () {
     Storage::fake('local');
 
     config()->set('repro.enabled', true);
+    config()->set('repro.capture_in_testing', true);
     config()->set('repro.disk', 'local');
     config()->set('repro.path', 'laravel-repro');
 

@@ -104,11 +104,26 @@ composer require pestphp/pest pestphp/pest-plugin-laravel --dev --with-all-depen
 vendor/bin/pest --init
 ```
 
-It is recommended to disable failure capturing during tests:
+Failure capturing is disabled automatically while the application is running in
+the `testing` environment, even when `LARAVEL_REPRO_ENABLED` is `true`. You can
+also enforce the disabled setting in `phpunit.xml`:
 
 ```xml
-<env name="LARAVEL_REPRO_ENABLED" value="false"/>
+<env
+    name="LARAVEL_REPRO_ENABLED"
+    value="false"
+    force="true"
+/>
 ```
+
+Capture can be enabled intentionally during tests with:
+
+```dotenv
+LARAVEL_REPRO_CAPTURE_IN_TESTING=true
+```
+
+This option is intended primarily for integration tests of the failure-capture
+mechanism itself.
 
 ## Security
 

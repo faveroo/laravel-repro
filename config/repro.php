@@ -3,6 +3,11 @@
 return [
     'enabled' => env('LARAVEL_REPRO_ENABLED', false),
 
+    'capture_in_testing' => env(
+        'LARAVEL_REPRO_CAPTURE_IN_TESTING',
+        false,
+    ),
+
     'disk' => env('LARAVEL_REPRO_DISK', 'local'),
 
     'path' => env('LARAVEL_REPRO_PATH', 'laravel-repro'),

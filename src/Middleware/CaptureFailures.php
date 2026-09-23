@@ -21,6 +21,10 @@ final readonly class CaptureFailures
 
     public function handle(Request $request, Closure $next): mixed
     {
+        if (! $this->shouldCapture()) {
+            return $next($request);
+        }
+
         try {
             $response = $next($request);
         } catch (Throwable $throwable) {
@@ -44,7 +48,7 @@ final readonly class CaptureFailures
         Request $request,
         Throwable $throwable
     ): void {
-        if (! $this->shouldCapture($throwable)) {
+        if ($this->shouldIgnore($throwable)) {
             return;
         }
 
@@ -60,18 +64,30 @@ final readonly class CaptureFailures
         }
     }
 
-    private function shouldCapture(Throwable $throwable): bool
+    private function shouldCapture(): bool
     {
         if (! $this->config->get('repro.enabled', false)) {
             return false;
         }
 
-        foreach ($this->config->get('repro.ignore_exceptions', []) as $exceptionClass) {
-            if (is_a($throwable, $exceptionClass)) {
-                return false;
-            }
+        if (
+            app()->environment('testing')
+            && ! $this->config->get('repro.capture_in_testing', false)
+        ) {
+            return false;
         }
 
         return true;
+    }
+
+    private function shouldIgnore(Throwable $throwable): bool
+    {
+        foreach ($this->config->get('repro.ignore_exceptions', []) as $exceptionClass) {
+            if (is_a($throwable, $exceptionClass)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

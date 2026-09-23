@@ -8,6 +8,7 @@ use Faveroo\LaravelRepro\Recording\RequestRecorder;
 use Faveroo\LaravelRepro\Redaction\RecursiveRedactor;
 use Faveroo\LaravelRepro\Reproduction\ReproductionCase;
 use Illuminate\Config\Repository as ConfigRepository;
+use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -43,7 +44,11 @@ final class CaptureFailuresInMemoryStore implements ReproductionStore
 $makeMiddleware = static function (
     array $config,
     ReproductionStore $store,
+    string $environment = 'testing',
 ): CaptureFailures {
+    $app = new Application(dirname(__DIR__, 2));
+    $app->instance('env', $environment);
+
     $redactor = new RecursiveRedactor([
         'password',
         'token',
@@ -70,6 +75,7 @@ it('captures and rethrows the original exception', function () use ($makeMiddlew
 
     $middleware = $makeMiddleware([
         'enabled' => true,
+        'capture_in_testing' => true,
         'ignore_exceptions' => [],
     ], $store);
 
@@ -110,6 +116,7 @@ it('does not capture when the package is disabled', function () use ($makeMiddle
 
     $middleware = $makeMiddleware([
         'enabled' => false,
+        'capture_in_testing' => true,
         'ignore_exceptions' => [],
     ], $store);
 
@@ -130,11 +137,54 @@ it('does not capture when the package is disabled', function () use ($makeMiddle
         ->and($store->all())->toBe([]);
 });
 
+it('does not capture in testing unless explicitly enabled', function (?bool $captureInTesting) use ($makeMiddleware) {
+    $store = new CaptureFailuresInMemoryStore;
+
+    $config = [
+        'enabled' => true,
+        'ignore_exceptions' => [],
+    ];
+
+    if ($captureInTesting !== null) {
+        $config['capture_in_testing'] = $captureInTesting;
+    }
+
+    $middleware = $makeMiddleware($config, $store);
+    $original = new RuntimeException('Application failure');
+
+    expect(fn () => $middleware->handle(
+        Request::create('/failure'),
+        static fn (): never => throw $original,
+    ))->toThrow($original)
+        ->and($store->all())->toBe([]);
+})->with([
+    'missing configuration' => null,
+    'disabled configuration' => false,
+]);
+
+it('captures outside testing without an explicit testing override', function () use ($makeMiddleware) {
+    $store = new CaptureFailuresInMemoryStore;
+
+    $middleware = $makeMiddleware([
+        'enabled' => true,
+        'ignore_exceptions' => [],
+    ], $store, 'production');
+
+    $original = new RuntimeException('Application failure');
+
+    expect(fn () => $middleware->handle(
+        Request::create('/failure'),
+        static fn (): never => throw $original,
+    ))->toThrow($original)
+        ->and($store->all())->toHaveCount(1);
+});
+
 it('does not capture ignored exceptions', function () use ($makeMiddleware) {
     $store = new CaptureFailuresInMemoryStore;
 
     $middleware = $makeMiddleware([
         'enabled' => true,
+        'capture_in_testing' => true,
         'ignore_exceptions' => [
             RuntimeException::class,
         ],
@@ -164,6 +214,7 @@ it('preserves the original exception when storage fails', function () use ($make
 
     $middleware = $makeMiddleware([
         'enabled' => true,
+        'capture_in_testing' => true,
         'ignore_exceptions' => [],
     ], $store);
 
@@ -184,11 +235,12 @@ it('preserves the original exception when storage fails', function () use ($make
         ->and($store->all())->toBe([]);
 });
 
-it('captures an exception attached to a rendered response', function () use ($makeMiddleware) {
+it('captures an exception attached to a rendered response only once', function () use ($makeMiddleware) {
     $store = new CaptureFailuresInMemoryStore;
 
     $middleware = $makeMiddleware([
         'enabled' => true,
+        'capture_in_testing' => true,
         'ignore_exceptions' => [],
     ], $store);
 
