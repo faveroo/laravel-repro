@@ -49,8 +49,8 @@
         "pestphp/pest-plugin-laravel": "Required to run generated Pest tests in Laravel applications."
     },
     "scripts": {
-        "format": "pint",
-        "lint": "pint --test",
+        "format": "@php vendor/bin/pint",
+        "lint": "@php vendor/bin/pint --test",
         "test": "pest",
         "test:no-tia": "pest --no-tia",
         "test:coverage": "pest --coverage"
