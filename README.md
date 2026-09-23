@@ -2,151 +2,49 @@
 
 Turn real Laravel failures into reproducible regression tests.
 
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/faveroo/laravel-repro.svg?style=flat-square)](https://packagist.org/packages/faveroo/laravel-repro)
 [![Tests](https://github.com/faveroo/laravel-repro/actions/workflows/tests.yml/badge.svg)](https://github.com/faveroo/laravel-repro/actions/workflows/tests.yml)
+[![License](https://img.shields.io/packagist/l/faveroo/laravel-repro.svg?style=flat-square)](LICENSE.md)
 
 > Laravel Repro is under active development and is not yet recommended for production use.
 
 ## About
 
-Laravel Repro is a Laravel package that captures failed HTTP requests, removes sensitive information and stores them as reproducible cases.
+Laravel Repro captures failed Laravel HTTP requests, removes sensitive information and stores them as reproducible cases.
 
-These cases can then be converted into Pest regression tests.
+Captured cases can be converted into Pest regression tests.
 
 ```text
-Request + Exception
-        ↓
-Sanitization
-        ↓
-Reproduction Case
-        ↓
-Storage
-        ↓
-Pest Test
+Request + Exception → Sanitization → Storage → Pest Test
 ```
-
-## Features
-
-* Immutable reproduction cases
-* Versioned reproduction schema
-* Serializable exception snapshots
-* Relative and sanitized exception paths
-* Recursive sensitive-data redaction
-* Configurable sensitive keys and replacement values
-* Request and exception recorder
-* Filesystem JSON storage
-* Laravel Service Provider and automatic package discovery
-* Dependency injection through Laravel's container
-* HTTP failure-capture middleware
-* Artisan commands for listing cases and generating tests
-* Pest regression-test generation
-* Duplicate-file protection with optional forced overwrite
-* Automated tests with Pest
 
 ## Requirements
 
-- PHP 8.3 or newer
-- Laravel 13
-- Composer
+* PHP 8.3 or newer
+* Laravel 13
+* Composer
 
 ## Installation
 
-Laravel Repro has not yet been published on Packagist.
-
-During development, it can be installed in a Laravel application through a Composer path repository.
-
-Assuming the Laravel application and this package are in neighboring directories:
-
-```text
-projects/
-├── laravel-app/
-└── laravel-repro/
-```
-
-From the Laravel application directory, run:
-
-```bash
-composer config repositories.laravel-repro path ../laravel-repro
-composer require faveroo/laravel-repro:@dev
-```
-
-Once the package is published on Packagist, installation will use:
+Install the package through Composer:
 
 ```bash
 composer require faveroo/laravel-repro
 ```
 
-## Configuration
-
-Publish the configuration file:
+Publish the configuration:
 
 ```bash
 php artisan vendor:publish --tag=repro-config
 ```
 
-The configuration file will be created at:
-
-```text
-config/repro.php
-```
-
-Example configuration:
-
-```php
-<?php
-
-return [
-    'enabled' => env('LARAVEL_REPRO_ENABLED', false),
-
-    'disk' => env('LARAVEL_REPRO_DISK', 'local'),
-
-    'path' => env(
-        'LARAVEL_REPRO_PATH',
-        'laravel-repro',
-    ),
-
-    'test_path' => env(
-        'LARAVEL_REPRO_TEST_PATH',
-        'tests/Feature/Reproductions',
-    ),
-
-    'capture_exception_message' => false,
-
-    'headers' => [
-        'accept',
-        'content-type',
-        'user-agent',
-        'x-requested-with',
-    ],
-
-    'redact' => [
-        'authorization',
-        'cookie',
-        'password',
-        'password_confirmation',
-        'token',
-        'access_token',
-        'refresh_token',
-        'api_key',
-        'secret',
-        'card_number',
-        'cvv',
-    ],
-
-    'replacement' => '[REDACTED]',
-
-    'ignore_exceptions' => [
-        // Symfony\Component\HttpKernel\Exception\NotFoundHttpException::class,
-    ],
-];
-```
-
-Enable failure capturing in your environment:
+Enable failure capturing in your `.env` file:
 
 ```dotenv
 LARAVEL_REPRO_ENABLED=true
 ```
 
-After changing environment configuration, clear Laravel's configuration cache:
+Clear the configuration cache:
 
 ```bash
 php artisan config:clear
@@ -154,30 +52,22 @@ php artisan config:clear
 
 ## Middleware
 
-Register the failure-capture middleware in your Laravel application's `bootstrap/app.php`.
+Register the middleware in `bootstrap/app.php`:
 
 ```php
 use Faveroo\LaravelRepro\Middleware\CaptureFailures;
 use Illuminate\Foundation\Configuration\Middleware;
 
-return Application::configure(basePath: dirname(__DIR__))
-    ->withRouting(
-        web: __DIR__.'/../routes/web.php',
-        api: __DIR__.'/../routes/api.php',
-        commands: __DIR__.'/../routes/console.php',
-        health: '/up',
-    )
-    ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->append(CaptureFailures::class);
-    })
-    ->create();
+->withMiddleware(function (Middleware $middleware): void {
+    $middleware->append(CaptureFailures::class);
+})
 ```
 
-Keep any middleware already configured in the existing `withMiddleware` callback.
+Keep any middleware already registered in the existing `withMiddleware` callback.
 
-## Listing captured cases
+## Usage
 
-List the stored reproduction cases:
+After an HTTP failure is captured, list the stored reproduction cases:
 
 ```bash
 php artisan repro:list
@@ -189,172 +79,70 @@ Limit the number of displayed cases:
 php artisan repro:list --limit=10
 ```
 
-The command displays information such as:
-
-* Case ID
-* Capture date
-* HTTP method
-* Request URI
-* Exception class
-
-## Generating a Pest test
-
-Generate a Pest regression test from a captured case:
+Generate a Pest regression test:
 
 ```bash
 php artisan repro:test <case-id>
 ```
 
-Example:
+Laravel Repro will not overwrite an existing test unless `--force` is provided:
 
 ```bash
-php artisan repro:test 8f93c1a22b771acd
+php artisan repro:test <case-id> --force
 ```
 
-Laravel Repro will refuse to overwrite an existing test.
+Generated tests are stored in the path configured by `repro.test_path`.
 
-To explicitly replace it, use:
+Always review generated tests before committing them. Redacted values may need to be replaced with fixtures from your application.
 
-```bash
-php artisan repro:test 8f93c1a22b771acd --force
-```
+## Pest
 
-Generated tests are written to the configured `test_path`.
-
-Always review a generated test before committing it. Redacted values may need to be replaced with fixtures that are meaningful to your application.
-
-## Pest in the consuming application
-
-Laravel Repro generates Pest tests, but it does not force Pest to be installed in the consuming Laravel application.
-
-If necessary, install Pest and its Laravel plugin:
+The consuming Laravel application must have Pest installed to execute generated tests:
 
 ```bash
 composer require pestphp/pest pestphp/pest-plugin-laravel --dev --with-all-dependencies
-php artisan pest:install
+vendor/bin/pest --init
 ```
 
-Make sure the selected Pest and PHPUnit versions are compatible with the Laravel application.
-
-It is recommended to disable capturing while the generated regression suite is running:
+It is recommended to disable failure capturing during tests:
 
 ```xml
 <env name="LARAVEL_REPRO_ENABLED" value="false"/>
 ```
 
-## Sensitive-data redaction
-
-The redactor replaces configured sensitive values recursively.
-
-```php
-use Faveroo\LaravelRepro\Contracts\Redactor;
-
-$redactor = app(Redactor::class);
-
-$result = $redactor->redact([
-    'email' => 'gabriel@example.com',
-    'password' => 'secret',
-    'profile' => [
-        'token' => 'private-token',
-    ],
-]);
-```
-
-Result:
-
-```php
-[
-    'email' => 'gabriel@example.com',
-    'password' => '[REDACTED]',
-    'profile' => [
-        'token' => '[REDACTED]',
-    ],
-]
-```
-
-Keys are compared against the values configured in `repro.redact`.
-
-## Storage
-
-Reproduction cases are serialized as JSON and stored on the configured Laravel filesystem disk.
-
-By default:
-
-```php
-'disk' => 'local',
-'path' => 'laravel-repro',
-```
-
-Captured files must not be committed to version control.
-
-Add the relevant storage directory to `.gitignore` if your configured disk places it inside the project repository.
-
 ## Security
 
-Laravel Repro is designed to minimize the amount of sensitive data stored in reproduction cases.
+Laravel Repro minimizes the amount of sensitive information stored:
 
 * Capturing is disabled by default.
-* Only configured request headers are captured.
-* Authorization and cookie headers are excluded by default.
+* Only configured headers are captured.
 * Passwords, tokens, secrets and API keys are recursively redacted.
 * Exception messages are omitted by default.
-* Absolute exception paths are converted to project-relative paths.
-* Ignored exception classes can be configured.
-* Generated tests do not automatically restore redacted secrets.
+* Absolute filesystem paths are converted to project-relative paths.
+* Exception classes can be ignored through configuration.
 
-Even with these protections, captured requests may contain application-specific sensitive information.
-
-Use Laravel Repro only in controlled development or staging environments until the package is production-ready. Protect the configured filesystem, restrict access and define an appropriate retention policy.
+Captured data should be stored on a protected filesystem and must not be committed to version control.
 
 ## Development
 
-Install the package dependencies:
+Install the dependencies:
 
 ```bash
 composer install
 ```
 
-Run the test suite:
+Run all quality checks:
 
 ```bash
+composer lint
+composer analyse
 composer test
 ```
 
-On Windows with Pest 5, if an error related to TIA occurs, run the suite without TIA:
-
-```powershell
-composer test:no-tia
-```
-
-## Roadmap
-
-- [x] Reproduction domain model
-- [x] Schema versioning
-- [x] Exception snapshots
-- [x] Relative exception paths
-- [x] Recursive sensitive-data redaction
-- [x] Laravel container integration
-- [x] Request and exception recorder
-- [x] Filesystem JSON storage
-- [x] Failure-capture middleware
-- [x] Artisan commands
-- [x] Pest test generation
-- [x] Duplicate-test protection
-- [x] Laravel 13 rendered-exception capture
-- [x] Continuous integration with PHP 8.3, 8.4 and 8.5
-- [ ] Request replay
-- [ ] Database storage driver
-- [ ] External HTTP request capture and mocking
-- [ ] Packagist release
-
-## Contributing
-
-Laravel Repro is still evolving. Bug reports, tests and focused pull requests are welcome.
-
-Before submitting a change, make sure the test suite passes:
+Format the code:
 
 ```bash
-composer test
+composer format
 ```
 
 ## License
