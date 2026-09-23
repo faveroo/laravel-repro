@@ -2,6 +2,8 @@
 
 Turn real Laravel failures into reproducible regression tests.
 
+[![Tests](https://github.com/faveroo/laravel-repro/actions/workflows/tests.yml/badge.svg)](https://github.com/faveroo/laravel-repro/actions/workflows/tests.yml)
+
 > Laravel Repro is under active development and is not yet recommended for production use.
 
 ## About
@@ -42,11 +44,9 @@ Pest Test
 
 ## Requirements
 
-* PHP 8.2 or newer
-* Laravel
-* Composer
-
-The package is currently being tested primarily with Laravel 13 and PHP 8.5. Check `composer.json` for the currently supported dependency constraints.
+- PHP 8.3 or newer
+- Laravel 13
+- Composer
 
 ## Installation
 
@@ -317,36 +317,35 @@ composer install
 Run the test suite:
 
 ```bash
-vendor/bin/pest
+composer test
 ```
 
-On Windows:
+On Windows with Pest 5, if an error related to TIA occurs, run the suite without TIA:
 
 ```powershell
-vendor\bin\pest.bat --no-tia
+composer test:no-tia
 ```
 
 ## Roadmap
 
-* [x] Reproduction domain model
-* [x] Schema versioning
-* [x] Exception snapshots
-* [x] Relative exception paths
-* [x] Recursive sensitive-data redaction
-* [x] Laravel container integration
-* [x] Request and exception recorder
-* [x] Filesystem JSON storage
-* [x] Failure-capture middleware
-* [x] Artisan case-listing command
-* [x] Artisan test-generation command
-* [x] Pest regression-test generation
-* [x] Duplicate-test protection
-* [x] Laravel 13 rendered-exception capture
-* [ ] Request replay
-* [ ] Database storage driver
-* [ ] External HTTP request capture and mocking
-* [ ] Continuous integration across supported PHP and Laravel versions
-* [ ] Packagist release
+- [x] Reproduction domain model
+- [x] Schema versioning
+- [x] Exception snapshots
+- [x] Relative exception paths
+- [x] Recursive sensitive-data redaction
+- [x] Laravel container integration
+- [x] Request and exception recorder
+- [x] Filesystem JSON storage
+- [x] Failure-capture middleware
+- [x] Artisan commands
+- [x] Pest test generation
+- [x] Duplicate-test protection
+- [x] Laravel 13 rendered-exception capture
+- [x] Continuous integration with PHP 8.3, 8.4 and 8.5
+- [ ] Request replay
+- [ ] Database storage driver
+- [ ] External HTTP request capture and mocking
+- [ ] Packagist release
 
 ## Contributing
 
@@ -355,7 +354,7 @@ Laravel Repro is still evolving. Bug reports, tests and focused pull requests ar
 Before submitting a change, make sure the test suite passes:
 
 ```bash
-vendor/bin/pest
+composer test
 ```
 
 ## License
