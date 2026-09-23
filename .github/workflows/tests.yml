@@ -1,0 +1,49 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: PHP ${{ matrix.php }}
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php:
+          - '8.3'
+          - '8.4'
+          - '8.5'
+
+    env:
+      COMPOSER_AUTH: >-
+        {"github-oauth":{"github.com":"${{ github.token }}"}}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          tools: composer:v2
+
+      - name: Validate Composer
+        run: composer validate --strict
+
+      - name: Install dependencies
+        run: composer update --prefer-dist --no-interaction --no-progress
+
+      - name: Audit dependencies
+        run: composer audit --locked
+
+      - name: Run tests
+        run: composer test
