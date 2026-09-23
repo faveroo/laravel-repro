@@ -7,7 +7,7 @@ use Faveroo\LaravelRepro\Storage\FileReproductionStore;
 use Illuminate\Contracts\Filesystem\Factory as FilesystemFactory;
 use Illuminate\Support\Facades\Storage;
 
-it('File Reproduction Test', function() {
+it('File Reproduction Test', function () {
     Storage::fake('local');
 
     $store = new FileReproductionStore(
@@ -73,7 +73,6 @@ it('File Reproduction Test', function() {
 
     expect($store->find('../../secret'))->toBeNull();
 });
-
 
 it('throws a specific exception for corrupted JSON', function () {
     Storage::fake('local');

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 use Faveroo\LaravelRepro\Contracts\Redactor;
 use Faveroo\LaravelRepro\Contracts\ReproductionStore;
-use Faveroo\LaravelRepro\Redaction\RecursiveRedactor;
-use Faveroo\LaravelRepro\Recording\RequestRecorder;
-use Faveroo\LaravelRepro\Storage\FileReproductionStore;
 use Faveroo\LaravelRepro\Contracts\TestGenerator;
+use Faveroo\LaravelRepro\Recording\RequestRecorder;
+use Faveroo\LaravelRepro\Redaction\RecursiveRedactor;
+use Faveroo\LaravelRepro\Storage\FileReproductionStore;
 use Faveroo\LaravelRepro\Testing\PestTestGenerator;
 
 it('registers the redactor as a singleton', function () {
@@ -39,7 +39,6 @@ it('registers the reproduction store as a singleton', function () {
         ->and($secondInstance)
         ->toBe($firstInstance);
 });
-
 
 it('registers the Pest test generator as a singleton', function () {
     $firstInstance = $this->app->make(TestGenerator::class);

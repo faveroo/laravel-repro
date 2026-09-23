@@ -40,7 +40,7 @@ it('generates a Pest regression test from a reproduction case', function () {
         ),
     );
 
-    $generator = new PestTestGenerator();
+    $generator = new PestTestGenerator;
 
     $code = $generator->generate($case);
     print_r($code);
@@ -82,7 +82,7 @@ it('does not append a question mark when the query is empty', function () {
         ),
     );
 
-    $code = (new PestTestGenerator())->generate($case);
+    $code = (new PestTestGenerator)->generate($case);
 
     expect($code)
         ->toContain("'/api/users'")

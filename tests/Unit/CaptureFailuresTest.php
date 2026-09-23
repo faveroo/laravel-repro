@@ -66,7 +66,7 @@ $makeMiddleware = static function (
 };
 
 it('captures and rethrows the original exception', function () use ($makeMiddleware) {
-    $store = new CaptureFailuresInMemoryStore();
+    $store = new CaptureFailuresInMemoryStore;
 
     $middleware = $makeMiddleware([
         'enabled' => true,
@@ -106,7 +106,7 @@ it('captures and rethrows the original exception', function () use ($makeMiddlew
 });
 
 it('does not capture when the package is disabled', function () use ($makeMiddleware) {
-    $store = new CaptureFailuresInMemoryStore();
+    $store = new CaptureFailuresInMemoryStore;
 
     $middleware = $makeMiddleware([
         'enabled' => false,
@@ -131,7 +131,7 @@ it('does not capture when the package is disabled', function () use ($makeMiddle
 });
 
 it('does not capture ignored exceptions', function () use ($makeMiddleware) {
-    $store = new CaptureFailuresInMemoryStore();
+    $store = new CaptureFailuresInMemoryStore;
 
     $middleware = $makeMiddleware([
         'enabled' => true,
@@ -184,9 +184,8 @@ it('preserves the original exception when storage fails', function () use ($make
         ->and($store->all())->toBe([]);
 });
 
-
 it('captures an exception attached to a rendered response', function () use ($makeMiddleware) {
-    $store = new CaptureFailuresInMemoryStore();
+    $store = new CaptureFailuresInMemoryStore;
 
     $middleware = $makeMiddleware([
         'enabled' => true,

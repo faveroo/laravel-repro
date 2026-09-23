@@ -11,8 +11,8 @@ use Faveroo\LaravelRepro\Recording\RequestRecorder;
 use Faveroo\LaravelRepro\Redaction\RecursiveRedactor;
 use Faveroo\LaravelRepro\Storage\FileReproductionStore;
 use Faveroo\LaravelRepro\Testing\PestTestGenerator;
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Contracts\Filesystem\Factory as FilesystemFactory;
+use Illuminate\Support\ServiceProvider;
 
 final class LaravelReproServiceProvider extends ServiceProvider
 {
@@ -54,7 +54,7 @@ final class LaravelReproServiceProvider extends ServiceProvider
         $this->app->singleton(
             ReproductionStore::class,
             function ($app): FileReproductionStore {
-                return new FileReproductionStore (
+                return new FileReproductionStore(
                     filesystem: $app->make(FilesystemFactory::class),
                     disk: (string) $app['config']->get(
                         'repro.disk',

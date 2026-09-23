@@ -28,7 +28,7 @@ final readonly class FileReproductionStore implements ReproductionStore
     {
         $json = json_encode(
             $case->toArray(),
-            JSON_PRETTY_PRINT 
+            JSON_PRETTY_PRINT
                 | JSON_UNESCAPED_SLASHES
                 | JSON_THROW_ON_ERROR
         );
@@ -38,7 +38,7 @@ final readonly class FileReproductionStore implements ReproductionStore
             ->put($this->filename($case->id), $json);
     }
 
-    public function find(string $id): ReproductionCase|null
+    public function find(string $id): ?ReproductionCase
     {
         if (! preg_match('/\A[a-f0-9]{16}\z/', $id)) {
             return null;
@@ -95,7 +95,7 @@ final readonly class FileReproductionStore implements ReproductionStore
             ->disk($this->disk)
             ->get($filename);
 
-        try { 
+        try {
             $data = json_decode(
                 $contents,
                 true,
@@ -107,7 +107,7 @@ final readonly class FileReproductionStore implements ReproductionStore
                     'The decoded snapshot must be an array.',
                 );
             }
-            
+
             return ReproductionCase::fromArray($data);
         } catch (UnsupportedSchemaVersion $exception) {
             throw $exception;
@@ -117,7 +117,6 @@ final readonly class FileReproductionStore implements ReproductionStore
                 previous: $exception
             );
         }
-
 
     }
 }

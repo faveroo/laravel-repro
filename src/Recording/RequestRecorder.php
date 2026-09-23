@@ -15,12 +15,12 @@ use Throwable;
 final readonly class RequestRecorder
 {
     /**
-     * @param list<string> $capturedHeaders
+     * @param  list<string>  $capturedHeaders
      */
     public function __construct(
         private Redactor $redactor,
         private string $basePath,
-        private array  $capturedHeaders,
+        private array $capturedHeaders,
         private bool $captureExceptionMessage = false
     ) {}
 

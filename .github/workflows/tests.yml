@@ -35,6 +35,10 @@ jobs:
           php-version: ${{ matrix.php }}
           coverage: none
           tools: composer:v2
+      
+      - name: Check code style
+        if: matrix.php == '8.5'
+        run: composer lint
 
       - name: Validate Composer
         run: composer validate --strict

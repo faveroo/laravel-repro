@@ -15,7 +15,7 @@ final class UnsupportedSchemaVersion extends RuntimeException
         $actualValue = is_scalar($actual) || $actual === null
             ? var_export($actual, true)
             : get_debug_type($actual);
-        
+
         return new self(
             sprintf(
                 'Unsupported reproduction schema version [%s]. Expected [%d].',

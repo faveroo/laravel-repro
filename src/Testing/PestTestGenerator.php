@@ -6,7 +6,6 @@ namespace Faveroo\LaravelRepro\Testing;
 
 use Faveroo\LaravelRepro\Contracts\TestGenerator;
 use Faveroo\LaravelRepro\Reproduction\ReproductionCase;
-use SebastianBergmann\Exporter\ExportContext;
 
 final class PestTestGenerator implements TestGenerator
 {
@@ -40,7 +39,6 @@ PHP;
             $this->export($case->headers, 2),
         ).PHP_EOL;
 
-
     }
 
     private function uri(ReproductionCase $case): string
@@ -49,7 +47,7 @@ PHP;
             return $case->uri;
         }
 
-        return $case->uri . '?' . http_build_query(
+        return $case->uri.'?'.http_build_query(
             $case->query,
             '',
             '&',

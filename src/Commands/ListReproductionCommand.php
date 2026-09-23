@@ -62,7 +62,7 @@ final class ListReproductionCommand extends Command
                 'Method',
                 'URI',
                 'Route',
-                'Exception'
+                'Exception',
             ],
             array_map(
                 static fn (ReproductionCase $case): array => [
@@ -76,7 +76,6 @@ final class ListReproductionCommand extends Command
                 $cases,
             ),
         );
-        
 
         return self::SUCCESS;
     }

@@ -10,9 +10,9 @@ final readonly class ReproductionCase
     public const SCHEMA_VERSION = 1;
 
     /**
-     * @param array<string, string> $headers
-     * @param array<string, mixed> $query
-     * @param array<string, mixed> $payload
+     * @param  array<string, string>  $headers
+     * @param  array<string, mixed>  $query
+     * @param  array<string, mixed>  $payload
      */
     public function __construct(
         public string $id,
@@ -54,8 +54,7 @@ final readonly class ReproductionCase
                 expected: self::SCHEMA_VERSION
             );
         }
-        
-        
+
         return new self(
             id: $data['id'],
             capturedAt: new DateTimeImmutable($data['captured_at']),
