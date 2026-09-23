@@ -15,7 +15,7 @@ final class PestTestGenerator implements TestGenerator
         $template = <<<'PHP'
 <?php
 
-declare(strict_type=1);
+declare(strict_types=1);
 
 it(%s, function() {
     $response = $this->json(
