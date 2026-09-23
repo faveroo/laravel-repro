@@ -33,4 +33,6 @@ return [
     ],
 
     'ignore_exceptions' => [],
+
+    'test_path' => 'tests/Feature/Reproductions',
 ];

@@ -1,5 +1,6 @@
 <?php
 
+use Faveroo\LaravelRepro\Exceptions\UnsupportedSchemaVersion;
 use Faveroo\LaravelRepro\Reproduction\ReproductionCase;
 use Faveroo\LaravelRepro\Reproduction\ThrowableSnapshot;
 
@@ -27,4 +28,54 @@ test('serializes and restores a reproduction case', function () {
     $restored = ReproductionCase::fromArray($data);
 
     expect($restored)->toEqual($case);
+});
+
+it('rejects an unsupported schema version', function () {
+    $data = [
+        'schema_version' => 999,
+        'id' => '7fd91a35d201abcd',
+        'captured_at' => '2026-09-23T12:00:00+00:00',
+        'method' => 'GET',
+        'uri' => '/api/users',
+        'route_name' => 'users.index',
+        'headers' => [],
+        'query' => [],
+        'payload' => [],
+        'exception' => [
+            'class' => RuntimeException::class,
+            'message' => '[OMITTED]',
+            'file' => 'app/Example.php',
+            'line' => 10,
+        ],
+    ];
+
+    expect(
+        fn () => ReproductionCase::fromArray($data),
+    )->toThrow(
+        UnsupportedSchemaVersion::class,
+        'Unsupported reproduction schema version [999]. Expected [1].',
+    );
+});
+
+it('rejects a snapshot without a schema version', function () {
+    $data = [
+        'id' => '7fd91a35d201abcd',
+        'captured_at' => '2026-09-23T12:00:00+00:00',
+        'method' => 'GET',
+        'uri' => '/api/users',
+        'route_name' => 'users.index',
+        'headers' => [],
+        'query' => [],
+        'payload' => [],
+        'exception' => [
+            'class' => RuntimeException::class,
+            'message' => '[OMITTED]',
+            'file' => 'app/Example.php',
+            'line' => 10,
+        ],
+    ];
+
+    expect(
+        fn () => ReproductionCase::fromArray($data),
+    )->toThrow(UnsupportedSchemaVersion::class);
 });

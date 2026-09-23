@@ -2,6 +2,7 @@
 
 namespace Faveroo\LaravelRepro;
 
+use Faveroo\LaravelRepro\Commands\GenerateTestCommand;
 use Faveroo\LaravelRepro\Commands\ListReproductionCommand;
 use Faveroo\LaravelRepro\Contracts\Redactor;
 use Faveroo\LaravelRepro\Contracts\ReproductionStore;
@@ -81,7 +82,8 @@ final class LaravelReproServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->commands([
-                ListReproductionCommand::class
+                ListReproductionCommand::class,
+                GenerateTestCommand::class,
             ]);
         }
     }

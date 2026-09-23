@@ -3,6 +3,7 @@
 namespace Faveroo\LaravelRepro\Reproduction;
 
 use DateTimeImmutable;
+use Faveroo\LaravelRepro\Exceptions\UnsupportedSchemaVersion;
 
 final readonly class ReproductionCase
 {
@@ -45,6 +46,16 @@ final readonly class ReproductionCase
     /** @param array<string, mixed> $data */
     public static function fromArray(array $data): self
     {
+        $schemaVersion = $data['schema_version'] ?? null;
+
+        if ($schemaVersion !== self::SCHEMA_VERSION) {
+            throw UnsupportedSchemaVersion::for(
+                actual: $schemaVersion,
+                expected: self::SCHEMA_VERSION
+            );
+        }
+        
+        
         return new self(
             id: $data['id'],
             capturedAt: new DateTimeImmutable($data['captured_at']),
