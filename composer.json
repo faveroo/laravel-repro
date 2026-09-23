@@ -48,8 +48,9 @@
         "pestphp/pest-plugin-laravel": "Required to run generated Pest tests in Laravel applications."
     },
     "scripts": {
-        "test": "pest --no-tia",
-        "test:coverage": "pest --coverage --no-tia"
+        "test": "pest",
+        "test:no-tia": "pest --no-tia",
+        "test:coverage": "pest --coverage"
     },
     "keywords": [
         "laravel",
