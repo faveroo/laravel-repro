@@ -19,12 +19,12 @@
             "email": "gabriel290974@gmail.com"
         }
     ],
-    "minimum-stability": "stable",
     "require": {
         "php": "^8.2",
-        "illuminate/support": "^13.32",
-        "illuminate/http": "*",
-        "illuminate/filesystem": "*"
+        "illuminate/console": "^13.0",
+        "illuminate/filesystem": "^13.0",
+        "illuminate/http": "^13.0",
+        "illuminate/support": "^13.0"
     },
     "extra": {
         "laravel": {
@@ -34,8 +34,9 @@
         }
     },
     "require-dev": {
-        "pestphp/pest": "^5.2",
-        "orchestra/testbench": "^11.2"
+        "orchestra/testbench": "^11.0",
+        "pestphp/pest": "^5.0",
+        "pestphp/pest-plugin-laravel": "^5.0"
     },
     "config": {
         "allow-plugins": {
@@ -45,5 +46,22 @@
     "suggest": {
         "pestphp/pest": "Required to execute generated Pest regression tests.",
         "pestphp/pest-plugin-laravel": "Required to run generated Pest tests in Laravel applications."
+    },
+    "scripts": {
+        "test": "pest --no-tia",
+        "test:coverage": "pest --coverage --no-tia"
+    },
+    "keywords": [
+        "laravel",
+        "pest",
+        "testing",
+        "regression-testing",
+        "debugging",
+        "exceptions"
+    ],
+    "homepage": "https://github.com/faveroo/laravel-repro",
+    "support": {
+        "issues": "https://github.com/faveroo/laravel-repro/issues",
+        "source": "https://github.com/faveroo/laravel-repro"
     }
 }

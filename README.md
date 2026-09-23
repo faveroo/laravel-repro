@@ -306,12 +306,6 @@ Even with these protections, captured requests may contain application-specific 
 
 Use Laravel Repro only in controlled development or staging environments until the package is production-ready. Protect the configured filesystem, restrict access and define an appropriate retention policy.
 
-## Known limitation
-
-Laravel 13 may render a route exception into an HTTP response before the middleware's `catch` block is reached.
-
-Support for capturing exceptions attached to rendered responses is being finalized and should be covered by an integration test before the first release.
-
 ## Development
 
 Install the package dependencies:
@@ -347,7 +341,7 @@ vendor\bin\pest.bat --no-tia
 * [x] Artisan test-generation command
 * [x] Pest regression-test generation
 * [x] Duplicate-test protection
-* [ ] Complete Laravel 13 rendered-exception capture
+* [x] Laravel 13 rendered-exception capture
 * [ ] Request replay
 * [ ] Database storage driver
 * [ ] External HTTP request capture and mocking
